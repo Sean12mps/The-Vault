@@ -65,7 +65,8 @@ jQuery(document).ready(function($){
 			ctr.light
 		, 	ctr.renderer
 		, 	ctr.camera
-		, 	ctr.scene;
+		, 	ctr.scene
+		,	ctr.mesh;
 
 		/*
 		(-)	LIGHT POSITION
@@ -86,15 +87,19 @@ jQuery(document).ready(function($){
 
 
 
-
+		/*
+		(+)	REFRESH SCREEN
+		 */ ctr.refreshScreen = function(){
+		 		ctr.light.position.set( ctr.lightPosition.xPos, ctr.lightPosition.yPos, ctr.lightPosition.zPos );
+		 		ctr.camera.position.set( ctr.cameraPosition.xPos, ctr.cameraPosition.yPos, ctr.cameraPosition.zPos );
+		 		ctr.renderer.render( ctr.scene, ctr.camera );
+		 	};
 		/*
 		(+)	LIGHT REFRESH
 		 */ ctr.lightRefresh = function( args ){
 		 		ctr.lightPosition = $.extend( ctr.lightPosition, args );
-		 		ctr.light.position.set( ctr.lightPosition.xPos, ctr.lightPosition.yPos, ctr.lightPosition.zPos );
-		 		ctr.camera.position.set( ctr.cameraPosition.xPos, ctr.cameraPosition.yPos, ctr.cameraPosition.zPos );
-		 		ctr.renderer.render( ctr.scene, ctr.camera );
-		 	}
+		 		ctr.refreshScreen();
+		 	};
 		/*
 		(+)	LIGHT UI
 		 */ ctr.lightUI = function(){
@@ -102,15 +107,13 @@ jQuery(document).ready(function($){
 		 		ctr.lightPosition.yPos = $( '#lightUI #lightY' ).val();
 		 		ctr.lightPosition.zPos = $( '#lightUI #lightZ' ).val();
 		 		ctr.lightRefresh( ctr.lightPosition );
-		 	}
+		 	};
 		/*
 		(+)	camera REFRESH
 		 */ ctr.cameraRefresh = function( args ){
 		 		ctr.cameraPosition = $.extend( ctr.cameraPosition, args );
-		 		ctr.light.position.set( ctr.lightPosition.xPos, ctr.lightPosition.yPos, ctr.lightPosition.zPos );
-		 		ctr.camera.position.set( ctr.cameraPosition.xPos, ctr.cameraPosition.yPos, ctr.cameraPosition.zPos );
-		 		ctr.renderer.render( ctr.scene, ctr.camera );
-		 	}
+		 		ctr.refreshScreen();
+		 	};
 		/*
 		(+)	camera UI
 		 */ ctr.cameraUI = function(){
@@ -118,7 +121,27 @@ jQuery(document).ready(function($){
 		 		ctr.cameraPosition.yPos = $( '#cameraUI #cameraY' ).val();
 		 		ctr.cameraPosition.zPos = $( '#cameraUI #cameraZ' ).val();
 		 		ctr.cameraRefresh( ctr.cameraPosition );
-		 	}
+		 	};
+		/*
+		(+)	mesh REFRESH
+		 */ ctr.meshRefresh = function( args ){
+		 		switch( args.select ){
+		 			case 'x':
+				 		ctr.mesh.rotation.x += args.val;
+		 				break;
+		 			case 'y':
+				 		ctr.mesh.rotation.y += args.val;
+		 				break;
+		 		}
+		 		ctr.cameraRefresh( ctr.cameraPosition );
+		 	};
+		/*
+		(-)	mesh UI
+		 */ ctr.meshUI = function(){
+		 		ctr.mesh.rotation.x = $( '#meshUI #meshX' ).val();
+		 		ctr.mesh.rotation.y = $( '#meshUI #meshY' ).val();
+		 		ctr.meshRefresh();
+		 	};
 
 
 
@@ -141,6 +164,11 @@ jQuery(document).ready(function($){
 				 		$( '#cameraUI #cameraY' ).val( ctr.cameraPosition.yPos );
 				 		$( '#cameraUI #cameraZ' ).val( ctr.cameraPosition.zPos );
 		 				$( '#cameraUI input' ).on( 'click change keyup', ctr.cameraUI );
+		 				break;
+		 			case "meshUI":
+				 		$( '#meshUI #meshX' ).val( ctr.mesh.rotation.x );
+				 		$( '#meshUI #meshY' ).val( ctr.mesh.rotation.y );
+		 				$( '#meshUI input' ).on( 'click change keyup', ctr.meshUI );
 		 				break;
 
 		 		}
@@ -165,8 +193,9 @@ jQuery(document).ready(function($){
 
 		        var geometry 	= new THREE.CubeGeometry( 5, 5, 5 );
 		        var material 	= new THREE.MeshLambertMaterial( { color: 0xFF0000 } );
-		        var mesh 		= new THREE.Mesh( geometry, material );
-		        ctr.scene.add( mesh );
+
+		        ctr.mesh 		= new THREE.Mesh( geometry, material );
+		        ctr.scene.add( ctr.mesh );
 
 		        ctr.light = new THREE.PointLight( 0xFFFF00 );
 		        ctr.light.position.set( ctr.lightPosition.xPos, ctr.lightPosition.yPos, ctr.lightPosition.zPos );
@@ -178,6 +207,7 @@ jQuery(document).ready(function($){
 
 		        ctr.scriptBinder( 'lightUI' );
 		        ctr.scriptBinder( 'cameraUI' );
+		        ctr.scriptBinder( 'meshUI' );
 
 			};
 	};
